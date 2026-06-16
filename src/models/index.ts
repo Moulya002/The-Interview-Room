@@ -11,3 +11,4 @@ export { Vote, type IVote } from "./Vote";
 export { Bookmark, type IBookmark } from "./Bookmark";
 export { Report, type IReport, REPORT_REASONS } from "./Report";
 export { Notification, type INotification } from "./Notification";
+export { Activity, type IActivity, ACTIVITY_TYPES } from "./Activity";

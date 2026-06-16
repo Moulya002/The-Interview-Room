@@ -7,7 +7,7 @@ import {
   parseListParams,
 } from "@/lib/api-helpers";
 import { connectDB } from "@/lib/db";
-import { Post, Vote, Bookmark } from "@/models";
+import { Post, Vote, Bookmark, Activity } from "@/models";
 import { createPostSchema } from "@/lib/validations";
 import { postSlug, slugify } from "@/lib/utils";
 import { serializePost } from "@/lib/serializers";
@@ -108,6 +108,15 @@ export async function POST(req: NextRequest) {
     });
 
     await indexPost(post.toObject());
+
+    await Activity.create({
+      userId: user.id,
+      userName: user.name ?? "",
+      userEmail: user.email ?? "",
+      type: "post",
+      postId: post._id,
+      postSlug: slug,
+    });
 
     const populated = await post.populate("createdBy", "name avatar image reputation");
     return ok(serializePost(populated.toObject()), { status: 201 });

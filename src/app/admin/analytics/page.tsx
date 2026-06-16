@@ -7,6 +7,8 @@ import {
   FileText,
   MessageSquare,
   Flag,
+  PenSquare,
+  MessagesSquare,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +16,20 @@ import { api } from "@/lib/fetcher";
 
 interface Stats {
   totals: { users: number; posts: number; comments: number; openReports: number };
+  engagement: {
+    posters: number;
+    commenters: number;
+    postActions: number;
+    commentActions: number;
+  };
+  recentActivity: {
+    id: string;
+    type: "post" | "comment";
+    userName: string;
+    userEmail: string;
+    postSlug: string;
+    createdAt: string;
+  }[];
   topCompanies: { company: string; slug: string; posts: number; views: number }[];
   topRoles: { role: string; slug: string; posts: number; comments: number }[];
   trendingTags: { tag: string; count: number }[];
@@ -89,6 +105,21 @@ export default function AnalyticsPage() {
     { icon: Flag, label: "Open reports", value: data.totals.openReports },
   ];
 
+  const engagement = [
+    {
+      icon: PenSquare,
+      label: "Users who created posts",
+      value: data.engagement.posters,
+      sub: `${data.engagement.postActions} posts created`,
+    },
+    {
+      icon: MessagesSquare,
+      label: "Users who commented",
+      value: data.engagement.commenters,
+      sub: `${data.engagement.commentActions} comments made`,
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -106,6 +137,58 @@ export default function AnalyticsPage() {
           </Card>
         ))}
       </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        {engagement.map((e) => (
+          <Card key={e.label}>
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <e.icon className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{e.value}</p>
+                <p className="text-xs text-muted-foreground">{e.label}</p>
+                <p className="text-[11px] text-muted-foreground">{e.sub}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Recent user activity</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {data.recentActivity.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No activity recorded yet.</p>
+          ) : (
+            <div className="divide-y">
+              {data.recentActivity.map((a) => (
+                <div
+                  key={a.id}
+                  className="flex items-center justify-between gap-3 py-2 text-sm"
+                >
+                  <div className="flex items-center gap-2">
+                    <Badge variant={a.type === "post" ? "default" : "secondary"}>
+                      {a.type === "post" ? "Posted" : "Commented"}
+                    </Badge>
+                    <span className="font-medium">{a.userName}</span>
+                    {a.userEmail && (
+                      <span className="text-xs text-muted-foreground">
+                        {a.userEmail}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(a.createdAt).toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>

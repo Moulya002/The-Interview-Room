@@ -7,7 +7,6 @@ import { CornerDownRight, Pencil, Trash2, Flag } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { VoteButtons } from "@/components/post/vote-buttons";
 import { ReportDialog } from "@/components/report-dialog";
 import { getInitials, timeAgo, cn } from "@/lib/utils";
 import { useAddComment, useEditComment, useDeleteComment } from "@/hooks/use-comments";
@@ -50,14 +49,6 @@ export function CommentItem({ comment, slug, depth = 0 }: CommentItemProps) {
   return (
     <div className={cn(depth > 0 && "ml-4 border-l pl-4 sm:ml-6")}>
       <div className="flex gap-3 py-3">
-        <div className="pt-1">
-          <VoteButtons
-            targetId={comment._id}
-            targetType="comment"
-            initialScore={comment.score}
-            initialVote={comment.userVote}
-          />
-        </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             {comment.isAnonymous || !comment.author ? (

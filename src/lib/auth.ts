@@ -1,6 +1,5 @@
 import type { NextAuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import GitHubProvider from "next-auth/providers/github";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 
@@ -9,17 +8,57 @@ const adminEmails = (process.env.ADMIN_EMAILS ?? "")
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-    }),
-    GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID ?? "",
-      clientSecret: process.env.GITHUB_CLIENT_SECRET ?? "",
+    /**
+     * Lightweight email + name registration/login (no password). Creates the
+     * account on first use and signs the user in immediately. Frictionless for
+     * an MVP; add a password or OTP here later for real account security.
+     */
+    CredentialsProvider({
+      name: "Email",
+      credentials: {
+        name: { label: "Name", type: "text" },
+        email: { label: "Email", type: "email" },
+      },
+      async authorize(credentials) {
+        const email = credentials?.email?.trim().toLowerCase();
+        const name = credentials?.name?.trim();
+        if (!email || !EMAIL_RE.test(email)) return null;
+
+        await connectDB();
+        const isAdmin = adminEmails.includes(email);
+        const set: Record<string, unknown> = {};
+        if (name) set.name = name;
+        if (isAdmin) set.role = "admin";
+        const setOnInsert: Record<string, unknown> = {
+          email,
+          avatar: "",
+          bio: "",
+          reputation: 0,
+        };
+        // Only seed `name` on insert when one wasn't provided, so it never
+        // collides with the `$set` above (Mongo forbids the same path in both).
+        if (!name) setOnInsert.name = email.split("@")[0];
+
+        const user = await User.findOneAndUpdate(
+          { email },
+          { $set: set, $setOnInsert: setOnInsert },
+          { upsert: true, new: true, setDefaultsOnInsert: true },
+        ).lean();
+
+        if (!user || user.isBanned) return null;
+        return {
+          id: String(user._id),
+          name: user.name,
+          email: user.email,
+          image: user.avatar || user.image || "",
+        };
+      },
     }),
   ],
   callbacks: {

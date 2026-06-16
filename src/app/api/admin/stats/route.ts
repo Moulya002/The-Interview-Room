@@ -1,6 +1,6 @@
 import { ok, handleApiError, requireAdmin } from "@/lib/api-helpers";
 import { connectDB } from "@/lib/db";
-import { User, Post, Comment, Report } from "@/models";
+import { User, Post, Comment, Report, Activity } from "@/models";
 
 export const dynamic = "force-dynamic";
 
@@ -93,8 +93,37 @@ export async function GET() {
       growthPipeline(User),
     ]);
 
+    // Engagement: how many distinct users are actually participating, plus the
+    // raw number of actions, derived from the Activity log.
+    const [distinctPosters, distinctCommenters, postActions, commentActions] =
+      await Promise.all([
+        Activity.distinct("userId", { type: "post" }),
+        Activity.distinct("userId", { type: "comment" }),
+        Activity.countDocuments({ type: "post" }),
+        Activity.countDocuments({ type: "comment" }),
+      ]);
+
+    const recentActivity = await Activity.find()
+      .sort({ createdAt: -1 })
+      .limit(15)
+      .lean();
+
     return ok({
       totals: { users, posts, comments, openReports },
+      engagement: {
+        posters: distinctPosters.length,
+        commenters: distinctCommenters.length,
+        postActions,
+        commentActions,
+      },
+      recentActivity: recentActivity.map((a) => ({
+        id: String(a._id),
+        type: a.type,
+        userName: a.userName || "Unknown",
+        userEmail: a.userEmail || "",
+        postSlug: a.postSlug || "",
+        createdAt: new Date(a.createdAt as Date).toISOString(),
+      })),
       topCompanies,
       topRoles,
       trendingTags,

@@ -14,7 +14,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { VoteButtons } from "@/components/post/vote-buttons";
 import { OutcomeBadge } from "@/components/post/outcome-badge";
 import { DifficultyMeter } from "@/components/post/difficulty-meter";
 import { PostActions } from "@/components/post/post-actions";
@@ -79,14 +78,6 @@ export default async function PostPage({ params }: Props) {
       <Card>
         <CardContent className="p-6">
           <div className="flex gap-4">
-            <div className="hidden sm:block">
-              <VoteButtons
-                targetId={post._id}
-                targetType="post"
-                initialScore={post.score}
-                initialVote={post.userVote}
-              />
-            </div>
             <div className="flex-1">
               <div className="mb-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                 <Link

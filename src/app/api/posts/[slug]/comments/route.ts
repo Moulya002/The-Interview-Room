@@ -7,7 +7,7 @@ import {
   getCurrentUser,
 } from "@/lib/api-helpers";
 import { connectDB } from "@/lib/db";
-import { Post, Comment, Vote, Notification, User } from "@/models";
+import { Post, Comment, Vote, Notification, User, Activity } from "@/models";
 import { commentSchema } from "@/lib/validations";
 import { serializeComment, buildCommentTree } from "@/lib/serializers";
 
@@ -80,6 +80,15 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     }
     // Reward the commenter with karma.
     await User.updateOne({ _id: user.id }, { $inc: { commentKarma: 1, reputation: 1 } });
+
+    await Activity.create({
+      userId: user.id,
+      userName: user.name ?? "",
+      userEmail: user.email ?? "",
+      type: "comment",
+      postId: post._id,
+      postSlug: slug,
+    });
 
     const populated = await comment.populate("userId", "name avatar image reputation");
     return ok(serializeComment(populated.toObject()), { status: 201 });

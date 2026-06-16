@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { VoteButtons } from "@/components/post/vote-buttons";
 import { OutcomeBadge } from "@/components/post/outcome-badge";
 import { DifficultyMeter } from "@/components/post/difficulty-meter";
 import { AuthorByline } from "@/components/post/author-byline";
@@ -21,15 +20,6 @@ export function PostCard({ post }: { post: PostDTO }) {
   return (
     <Card className="overflow-hidden transition-colors hover:border-primary/40">
       <div className="flex">
-        <div className="flex flex-col items-center gap-1 border-r bg-muted/30 px-2 py-4">
-          <VoteButtons
-            targetId={post._id}
-            targetType="post"
-            initialScore={post.score}
-            initialVote={post.userVote}
-          />
-        </div>
-
         <div className="flex-1 p-4">
           <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <Link
@@ -110,7 +100,6 @@ export function PostCard({ post }: { post: PostDTO }) {
 export function PostCardSkeleton() {
   return (
     <Card className={cn("flex animate-pulse", "h-44")}>
-      <div className="w-12 border-r bg-muted/30" />
       <div className="flex-1 space-y-3 p-4">
         <div className="h-3 w-1/3 rounded bg-muted" />
         <div className="h-5 w-3/4 rounded bg-muted" />
