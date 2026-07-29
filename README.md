@@ -12,6 +12,7 @@ Built with **Next.js 15 (App Router)**, **TypeScript**, **Tailwind CSS**,
 
 ## ✨ Features
 
+
 - **Authentication** — Google & GitHub OAuth (NextAuth), profiles with avatar/bio,
   user contributions, reputation/karma, and **anonymous posting**.
 - **Home feed** — infinite scroll with **Trending / Latest / Top** sorting and
