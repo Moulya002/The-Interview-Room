@@ -5,7 +5,7 @@ import { Award, Calendar, MessageSquare, FileText } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
-import { User, Post } from "@/models";
+import { User, Post, Comment } from "@/models";
 import { serializePost } from "@/lib/serializers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,16 +23,25 @@ async function getProfile(id: string) {
   await connectDB();
   const user = await User.findById(id).lean();
   if (!user) return null;
-  const posts = await Post.find({
-    createdBy: id,
-    isRemoved: false,
-    isAnonymous: false,
-  })
-    .sort({ createdAt: -1 })
-    .limit(20)
-    .populate("createdBy", "name avatar image reputation")
-    .lean();
-  return { user, posts: posts.map((p) => serializePost(p)) };
+  const [posts, postCount, commentCount] = await Promise.all([
+    Post.find({
+      createdBy: id,
+      isRemoved: false,
+      isAnonymous: false,
+    })
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .populate("createdBy", "name avatar image reputation")
+      .lean(),
+    Post.countDocuments({ createdBy: id, isRemoved: false }),
+    Comment.countDocuments({ userId: id, isRemoved: false }),
+  ]);
+  return {
+    user,
+    posts: posts.map((p) => serializePost(p)),
+    postCount,
+    commentCount,
+  };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -54,9 +63,9 @@ export default async function ProfilePage({ params }: Props) {
     : false;
 
   const stats = [
+    { icon: FileText, label: "Posts", value: data.postCount },
+    { icon: MessageSquare, label: "Comments", value: data.commentCount },
     { icon: Award, label: "Reputation", value: data.user.reputation ?? 0 },
-    { icon: FileText, label: "Post karma", value: data.user.postKarma ?? 0 },
-    { icon: MessageSquare, label: "Comment karma", value: data.user.commentKarma ?? 0 },
   ];
 
   return (
