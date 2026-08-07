@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import { OutcomeBadge } from "@/components/post/outcome-badge";
 import { api } from "@/lib/fetcher";
 
@@ -113,9 +114,11 @@ function SearchResults() {
       </div>
 
       {q && !isFetching && data?.items.length === 0 && (
-        <p className="py-12 text-center text-muted-foreground">
-          No results found. Try different keywords.
-        </p>
+        <EmptyState
+          icon={SearchIcon}
+          title="No results found"
+          description={`We couldn't find anything for "${q}". Try different or broader keywords.`}
+        />
       )}
     </div>
   );
