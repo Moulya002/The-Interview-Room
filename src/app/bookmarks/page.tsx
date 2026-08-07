@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { Bookmark, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { PostCard, PostCardSkeleton } from "@/components/post/post-card";
 import { api } from "@/lib/fetcher";
 import type { Paginated, PostDTO } from "@/types";
@@ -39,9 +41,16 @@ export default function BookmarksPage() {
           ))}
         </div>
       ) : data?.items.length === 0 ? (
-        <p className="py-12 text-center text-muted-foreground">
-          You haven&apos;t saved any experiences yet.
-        </p>
+        <EmptyState
+          icon={Bookmark}
+          title="No bookmarks yet"
+          description="Save interview experiences you want to revisit and they'll show up here."
+          action={
+            <Button asChild variant="outline">
+              <Link href="/">Browse experiences</Link>
+            </Button>
+          }
+        />
       ) : (
         <div className="space-y-4">
           {data?.items.map((p) => (
