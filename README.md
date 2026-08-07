@@ -13,8 +13,10 @@ Built with **Next.js 15 (App Router)**, **TypeScript**, **Tailwind CSS**,
 ## ✨ Features
 
 
-- **Authentication** — Google & GitHub OAuth (NextAuth), profiles with avatar/bio,
-  user contributions, reputation/karma, and **anonymous posting**.
+- **Authentication** — frictionless **name + email guest login** (NextAuth
+  Credentials) so anyone can start using the platform instantly; optional
+  Google & GitHub OAuth. Profiles with avatar/bio, real **post & comment
+  counts**, reputation/karma, and **anonymous posting**.
 - **Home feed** — infinite scroll with **Trending / Latest / Top** sorting and
   filters by company, role, location, difficulty, interview type, and outcome.
 - **Rich interview posts** — company, role, location, experience level, interview
@@ -23,12 +25,13 @@ Built with **Next.js 15 (App Router)**, **TypeScript**, **Tailwind CSS**,
 - **Company & Role pages** — `/company/[slug]` and `/role/[slug]` with aggregated
   stats: difficulty, outcomes, most common questions, trending topics, top
   companies hiring, plus AI insights.
-- **Post detail** — upvote/downvote, bookmark, share, **nested comments** with
-  replies, edit/delete, and report.
+- **Post detail** — bookmark, share, reading-time estimate, **nested comments**
+  with replies, edit/delete, and report.
 - **Search** — global search with **Typesense** + autocomplete (⌘K), with an
   automatic **MongoDB text-search fallback** when Typesense isn't configured.
-- **Community** — votes, comment karma, reputation, follow users, saved posts,
-  reporting, notifications.
+- **Community** — comment karma, reputation, follow users, saved posts,
+  reporting, notifications, and **activity tracking** (post/comment events are
+  logged so the admin dashboard can report who is participating).
 - **AI features** (FastAPI) — AI summary, mock question generator, and a
   personalized preparation roadmap (LLM-powered with heuristic fallback).
 - **Admin dashboard** — moderation queue (reports), user management
@@ -76,8 +79,8 @@ bundles never pull in Mongoose.
 
 ### Database collections
 
-`Users`, `Posts`, `Comments`, `Votes`, `Bookmarks`, `Reports`, `Notifications`
-— see [`src/models`](src/models).
+`Users`, `Posts`, `Comments`, `Bookmarks`, `Reports`, `Notifications`,
+`Activity` — see [`src/models`](src/models).
 
 ---
 
@@ -213,7 +216,7 @@ env vars, then run `npm run typesense:sync`.
 | Framework | Next.js 15 (App Router, RSC) |
 | Language | TypeScript |
 | Styling | Tailwind CSS + shadcn/ui patterns |
-| Auth | NextAuth (Google + GitHub, JWT sessions) |
+| Auth | NextAuth (email/name Credentials + optional Google/GitHub, JWT sessions) |
 | Database | MongoDB + Mongoose |
 | Client state | Zustand |
 | Server state | TanStack Query |
