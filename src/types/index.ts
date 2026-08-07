@@ -87,6 +87,8 @@ export interface UserProfileDTO {
   reputation: number;
   postKarma: number;
   commentKarma: number;
+  postCount: number;
+  commentCount: number;
   followerCount: number;
   followingCount: number;
   isFollowing?: boolean;

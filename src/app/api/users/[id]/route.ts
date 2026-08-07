@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { ok, fail, handleApiError, getCurrentUser } from "@/lib/api-helpers";
 import { connectDB } from "@/lib/db";
-import { User, Post } from "@/models";
+import { User, Post, Comment } from "@/models";
 import { serializePost } from "@/lib/serializers";
 import type { UserProfileDTO } from "@/types";
 import mongoose from "mongoose";
@@ -22,11 +22,15 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
     if (!doc) return fail("User not found", 404);
 
     const viewer = await getCurrentUser();
-    const posts = await Post.find({ createdBy: id, isRemoved: false, isAnonymous: false })
-      .sort({ createdAt: -1 })
-      .limit(20)
-      .populate("createdBy", "name avatar image reputation")
-      .lean();
+    const [posts, postCount, commentCount] = await Promise.all([
+      Post.find({ createdBy: id, isRemoved: false, isAnonymous: false })
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .populate("createdBy", "name avatar image reputation")
+        .lean(),
+      Post.countDocuments({ createdBy: id, isRemoved: false }),
+      Comment.countDocuments({ userId: id, isRemoved: false }),
+    ]);
 
     const profile: UserProfileDTO = {
       _id: String(doc._id),
@@ -37,6 +41,8 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
       reputation: doc.reputation ?? 0,
       postKarma: doc.postKarma ?? 0,
       commentKarma: doc.commentKarma ?? 0,
+      postCount,
+      commentCount,
       followerCount: doc.followers?.length ?? 0,
       followingCount: doc.following?.length ?? 0,
       isFollowing: viewer
