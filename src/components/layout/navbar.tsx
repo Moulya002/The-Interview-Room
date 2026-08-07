@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { MessagesSquare, Search, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -8,6 +9,7 @@ import { UserNav } from "@/components/layout/user-nav";
 import { SearchCommand } from "@/components/search-command";
 import { NotificationsBell } from "@/components/layout/notifications-bell";
 import { useUIStore } from "@/store/ui-store";
+import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -17,6 +19,10 @@ const navLinks = [
 
 export function Navbar() {
   const setSearchOpen = useUIStore((s) => s.setSearchOpen);
+  const pathname = usePathname();
+
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-md">
@@ -30,8 +36,18 @@ export function Navbar() {
 
         <nav className="hidden items-center gap-1 md:flex">
           {navLinks.map((l) => (
-            <Button key={l.href} variant="ghost" size="sm" asChild>
-              <Link href={l.href}>{l.label}</Link>
+            <Button
+              key={l.href}
+              variant="ghost"
+              size="sm"
+              asChild
+              className={cn(
+                isActive(l.href) && "bg-accent text-accent-foreground",
+              )}
+            >
+              <Link href={l.href} aria-current={isActive(l.href) ? "page" : undefined}>
+                {l.label}
+              </Link>
             </Button>
           ))}
         </nav>
