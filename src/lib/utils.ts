@@ -74,6 +74,17 @@ export function formatSalary(
   return fmt((min ?? max) as number);
 }
 
+/** Estimate reading time in minutes (min 1) at ~200 words per minute. */
+export function readingTime(...parts: (string | undefined | null)[]): number {
+  const words = parts
+    .filter(Boolean)
+    .join(" ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
+}
+
 export function difficultyLabel(d: number): string {
   if (d <= 3) return "Easy";
   if (d <= 6) return "Medium";

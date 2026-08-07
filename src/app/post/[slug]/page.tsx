@@ -10,6 +10,7 @@ import {
   Eye,
   BookOpen,
   Lightbulb,
+  Clock,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,7 @@ import { PostActions } from "@/components/post/post-actions";
 import { AuthorByline } from "@/components/post/author-byline";
 import { CommentSection } from "@/components/comments/comment-section";
 import { getPostBySlug } from "@/lib/server-data";
-import { formatSalary, timeAgo, formatCompact } from "@/lib/utils";
+import { formatSalary, timeAgo, formatCompact, readingTime } from "@/lib/utils";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -45,6 +46,7 @@ export default async function PostPage({ params }: Props) {
   if (!post) notFound();
 
   const salary = formatSalary(post.salaryMin, post.salaryMax, post.salaryCurrency);
+  const mins = readingTime(post.content, post.tips, ...(post.questions ?? []));
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -130,6 +132,9 @@ export default async function PostPage({ params }: Props) {
                   <span>· {timeAgo(post.createdAt)}</span>
                   <span className="flex items-center gap-1">
                     <Eye className="h-3.5 w-3.5" /> {formatCompact(post.views)}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3.5 w-3.5" /> {mins} min read
                   </span>
                 </div>
               </div>
