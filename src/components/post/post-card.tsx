@@ -44,7 +44,9 @@ export function PostCard({ post }: { post: PostDTO }) {
               </>
             )}
             <span>·</span>
-            <span>{timeAgo(post.createdAt)}</span>
+            <span title={new Date(post.createdAt).toLocaleString()}>
+              {timeAgo(post.createdAt)}
+            </span>
           </div>
 
           <Link href={`/post/${post.slug}`}>
