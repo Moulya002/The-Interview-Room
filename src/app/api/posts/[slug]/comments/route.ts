@@ -58,10 +58,12 @@ export async function POST(req: NextRequest, { params }: Ctx) {
     if (!post) return fail("Post not found", 404);
 
     const data = commentSchema.parse(await req.json());
+    const content = data.content.trim();
+    if (!content) return fail("Comment cannot be empty", 422);
     const comment = await Comment.create({
       postId: post._id,
       parentCommentId: data.parentCommentId || null,
-      content: data.content,
+      content,
       userId: user.id,
       isAnonymous: data.isAnonymous,
     });
