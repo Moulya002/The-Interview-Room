@@ -81,6 +81,9 @@ export function EditProfileDialog({
               onChange={(e) => setBio(e.target.value)}
               placeholder="Tell the community about yourself..."
             />
+            <p className="text-right text-xs text-muted-foreground">
+              {bio.length}/280
+            </p>
           </div>
         </div>
         <DialogFooter>
